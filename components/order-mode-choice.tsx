@@ -22,10 +22,14 @@ export function OrderModeChoice({
   value,
   onChange,
   error,
+  onDiagnosticPointerDown,
+  onDiagnosticClick,
 }: {
   value: OrderMode | null
   onChange: (mode: OrderMode) => void
   error?: string
+  onDiagnosticPointerDown?: () => void
+  onDiagnosticClick?: () => void
 }) {
   return (
     <section aria-labelledby="mode-heading">
@@ -44,7 +48,11 @@ export function OrderModeChoice({
               type="button"
               role="radio"
               aria-checked={selected}
-              onClick={() => onChange(option.id)}
+              onPointerDown={onDiagnosticPointerDown}
+              onClick={() => {
+                onDiagnosticClick?.()
+                onChange(option.id)
+              }}
               className={cn(
                 "group relative flex touch-manipulation flex-col items-start gap-6 border p-8 text-left transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring md:p-10",
                 selected

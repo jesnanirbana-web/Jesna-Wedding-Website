@@ -14,6 +14,14 @@ import { SuccessScreen, type OrderConfirmation } from "./success-screen"
 
 const emptyClient: ClientData = { fullName: "", whatsapp: "", weddingDate: "" }
 
+type FormDiagnosticState = {
+  pointerDownCount: number
+  clickCount: number
+  modeHandlerCount: number
+  packageInDom: boolean | null
+  productsInDom: boolean | null
+}
+
 function validateClient(data: ClientData): ClientErrors {
   const errors: ClientErrors = {}
   if (data.fullName.trim().length < 2) errors.fullName = "Mohon isi nama lengkap Anda."
@@ -41,6 +49,18 @@ export function OrderExperience({ onConfirmationChange }: OrderExperienceProps =
   const [submitting, setSubmitting] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
   const [confirmation, setConfirmation] = useState<OrderConfirmation | null>(null)
+  const [formDebugEnabled, setFormDebugEnabled] = useState(false)
+  const [formDiagnostic, setFormDiagnostic] = useState<FormDiagnosticState>({
+    pointerDownCount: 0,
+    clickCount: 0,
+    modeHandlerCount: 0,
+    packageInDom: null,
+    productsInDom: null,
+  })
+
+  useEffect(() => {
+    setFormDebugEnabled(new URLSearchParams(window.location.search).get("formDebug") === "1")
+  }, [])
 
   const hasDate = isIsoDate(client.weddingDate)
   const {
@@ -51,6 +71,15 @@ export function OrderExperience({ onConfirmationChange }: OrderExperienceProps =
   } = useSWR(hasDate ? `/api/availability?date=${client.weddingDate}` : null, fetchAvailability, {
     keepPreviousData: false,
   })
+
+  useEffect(() => {
+    if (!formDebugEnabled) return
+    setFormDiagnostic((current) => ({
+      ...current,
+      packageInDom: document.querySelector('section[aria-labelledby="package-heading"]') !== null,
+      productsInDom: document.querySelector('section[aria-labelledby="products-heading"]') !== null,
+    }))
+  }, [formDebugEnabled, mode])
 
   // A tier that is fully booked for the chosen week can never stay selected.
   const activeTier = packageTier && hasDate && availability && !availability.booked.includes(packageTier) ? packageTier : null
@@ -192,11 +221,89 @@ export function OrderExperience({ onConfirmationChange }: OrderExperienceProps =
               Setiap detail dirangkai dengan tenang, teliti, dan penuh makna.
             </p>
           </div>
+          {formDebugEnabled ? (
+            <aside
+              aria-label="Diagnostik sementara interaksi form"
+              className="mx-auto mb-8 max-w-6xl border border-amber-700/40 bg-amber-50 p-4 text-sm text-stone-900"
+            >
+              <p className="font-medium">Diagnostik form aktif · Efek React dijalankan</p>
+              <dl className="mt-2 grid gap-1 sm:grid-cols-2">
+                <div>
+                  <dt className="inline">Pointerdown: </dt>
+                  <dd className="inline">{formDiagnostic.pointerDownCount}</dd>
+                </div>
+                <div>
+                  <dt className="inline">Click: </dt>
+                  <dd className="inline">{formDiagnostic.clickCount}</dd>
+                </div>
+                <div>
+                  <dt className="inline">Handler pemilihan mode dijalankan: </dt>
+                  <dd className="inline">{formDiagnostic.modeHandlerCount}</dd>
+                </div>
+                <div>
+                  <dt className="inline">Mode setelah update React: </dt>
+                  <dd className="inline">
+                    {mode === "paket_jesna" ? "Paket Jesna" : mode === "produk_satuan" ? "Produk Satuan" : "Belum dipilih"}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="inline">Input tanggal: </dt>
+                  <dd className="inline">{hasDate ? "Valid" : "Tidak valid / belum diisi"}</dd>
+                </div>
+                <div>
+                  <dt className="inline">Ketersediaan: </dt>
+                  <dd className="inline">
+                    {!hasDate
+                      ? "Tidak diminta"
+                      : availabilityError
+                        ? "Gagal"
+                        : availabilityLoading
+                          ? "Loading"
+                          : availability
+                            ? "Berhasil"
+                            : "Loading"}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="inline">Komponen paket ada di DOM: </dt>
+                  <dd className="inline">
+                    {formDiagnostic.packageInDom === null ? "Belum diperiksa" : formDiagnostic.packageInDom ? "Ya" : "Tidak"}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="inline">Komponen produk ada di DOM: </dt>
+                  <dd className="inline">
+                    {formDiagnostic.productsInDom === null
+                      ? "Belum diperiksa"
+                      : formDiagnostic.productsInDom
+                        ? "Ya"
+                        : "Tidak"}
+                  </dd>
+                </div>
+              </dl>
+              <p className="mt-2 text-xs">
+                Efek React ini berjalan, tetapi bukan bukti lengkap bahwa semua interaksi bekerja. Status DOM juga tidak membuktikan komponen terlihat di layar atau tidak tertutup elemen lain.
+              </p>
+            </aside>
+          ) : null}
           <div className="mx-auto flex max-w-6xl flex-col gap-16 md:gap-24">
             <ClientInfo data={client} errors={clientErrors} onChange={updateClient} />
             <OrderModeChoice
               value={mode}
+              onDiagnosticPointerDown={
+                formDebugEnabled
+                  ? () => setFormDiagnostic((current) => ({ ...current, pointerDownCount: current.pointerDownCount + 1 }))
+                  : undefined
+              }
+              onDiagnosticClick={
+                formDebugEnabled
+                  ? () => setFormDiagnostic((current) => ({ ...current, clickCount: current.clickCount + 1 }))
+                  : undefined
+              }
               onChange={(m) => {
+                if (formDebugEnabled) {
+                  setFormDiagnostic((current) => ({ ...current, modeHandlerCount: current.modeHandlerCount + 1 }))
+                }
                 setMode(m)
                 setFormError(null)
               }}
