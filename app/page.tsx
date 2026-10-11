@@ -1,74 +1,90 @@
+"use client"
+
+import { useState } from "react"
 import { OrderExperience } from "@/components/order-experience"
 
 export default function Page() {
+  const [isSuccess, setIsSuccess] = useState(false)
+
   return (
     <main className="min-h-screen bg-[#faf7f2] text-[#2c2c2c] scroll-smooth">
       
       {/* ==========================================
           HEADER / NAVIGASI UTAMA
+          (Disembunyikan saat di halaman sukses pemesanan)
           ========================================== */}
-      <header className="sticky top-0 z-50 bg-[#faf7f2]/95 backdrop-blur-md border-b border-stone-200/60 py-5 px-6 md:px-12">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          
-          <span className="font-serif text-sm tracking-[0.25em] uppercase text-stone-900 font-normal">
-            Jesna Wedding
-          </span>
+      {!isSuccess && (
+        <header className="relative z-40 border-b border-stone-200/60 bg-[#faf7f2]/95 px-4 pb-4 pt-4 md:sticky md:top-0 md:z-50 md:backdrop-blur-md md:px-12 md:py-5">
+          <div className="mx-auto max-w-6xl md:flex md:items-center md:justify-between">
+            <div className="flex items-center justify-between md:block">
+              <span className="font-serif text-sm tracking-[0.25em] uppercase text-stone-900 font-normal">
+                Jesna Wedding
+              </span>
+            </div>
 
-          <nav className="hidden md:flex items-center gap-8 text-xs uppercase tracking-[0.2em] text-stone-700 font-light">
-            <a href="#katalog" className="hover:text-stone-900 transition-colors py-1 border-b border-transparent hover:border-stone-900">
-              Katalog
-            </a>
-            <a href="#panduan" className="hover:text-stone-900 transition-colors py-1 border-b border-transparent hover:border-stone-900">
-              Panduan & FAQ
-            </a>
-            <a href="#whatsapp" className="hover:text-stone-900 transition-colors py-1 border-b border-transparent hover:border-stone-900">
-              Konsultasi
-            </a>
-            <a href="#pesan" className="hover:text-stone-900 transition-colors py-1 border-b border-transparent hover:border-stone-900">
-              Pemesanan
-            </a>
-          </nav>
+            <nav className="mt-4 flex flex-col gap-2 md:mt-0 md:flex md:flex-row md:items-center md:gap-8">
+              <a href="#katalog" className="flex items-center justify-start border-b border-stone-200/80 px-2 py-3 text-left text-[10px] uppercase tracking-[0.2em] text-stone-700 transition-colors duration-200 hover:border-stone-900 hover:text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#faf7f2] md:justify-center md:border-b md:border-transparent md:px-0 md:py-1 md:text-xs md:focus-visible:ring-offset-0">
+                Katalog
+              </a>
+              <a href="#panduan" className="flex items-center justify-start border-b border-stone-200/80 px-2 py-3 text-left text-[10px] uppercase tracking-[0.2em] text-stone-700 transition-colors duration-200 hover:border-stone-900 hover:text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#faf7f2] md:justify-center md:border-b md:border-transparent md:px-0 md:py-1 md:text-xs md:focus-visible:ring-offset-0">
+                Panduan & FAQ
+              </a>
+              <a href="#whatsapp" className="flex items-center justify-start border-b border-stone-200/80 px-2 py-3 text-left text-[10px] uppercase tracking-[0.2em] text-stone-700 transition-colors duration-200 hover:border-stone-900 hover:text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#faf7f2] md:justify-center md:border-b md:border-transparent md:px-0 md:py-1 md:text-xs md:focus-visible:ring-offset-0">
+                Konsultasi
+              </a>
+              <a href="#pesan" className="flex items-center justify-start border-b border-stone-200/80 px-2 py-3 text-left text-[10px] uppercase tracking-[0.2em] text-stone-700 transition-colors duration-200 hover:border-stone-900 hover:text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#faf7f2] md:justify-center md:border-b md:border-transparent md:px-0 md:py-1 md:text-xs md:focus-visible:ring-offset-0">
+                Pemesanan
+              </a>
+            </nav>
 
-          <div>
-            <a 
-              href="#whatsapp" 
-              className="text-xs uppercase tracking-[0.2em] px-5 py-2.5 bg-stone-900 text-stone-100 hover:bg-stone-800 transition-all duration-300 font-light"
-            >
-              Hubungi Kami
-            </a>
+            <div className="hidden md:block">
+              <a 
+                href="#whatsapp" 
+                className="text-xs uppercase tracking-[0.2em] px-5 py-2.5 bg-stone-900 text-stone-100 hover:bg-stone-800 transition-all duration-300 font-light"
+              >
+                Hubungi Kami
+              </a>
+            </div>
+          </div>
+        </header>
+      )}
+
+      {/* 1. Katalog & Form Pemesanan / Layar Sukses */}
+      <div id="katalog" className={isSuccess ? "" : "scroll-mt-28"}>
+        <div id="pesan" className={isSuccess ? "" : "pt-2 scroll-mt-28 [&>div>div:first-child]:hidden [&>div>div:last-child]:hidden"}>
+          <OrderExperience onConfirmationChange={setIsSuccess} />
+        </div>
+      </div>
+
+      {/* ==========================================
+          INFORMASI SOP, FAQ, KONSULTASI & FOOTER
+          (Disembunyikan saat di halaman sukses pemesanan)
+          ========================================== */}
+      {!isSuccess && (
+        <>
+          {/* 2. SOP & FAQ (Panduan) */}
+          <div id="panduan">
+            <SopAndFaqSection />
           </div>
 
-        </div>
-      </header>
+          {/* 3. Tombol Konsultasi WhatsApp */}
+          <div id="whatsapp">
+            <WhatsAppConsultationCTA />
+          </div>
 
-      {/* 1. Katalog & Form Pemesanan (ID digabung ke sini jadi id="katalog pesan") */}
-      <div id="katalog" className="scroll-mt-28">
-        <div id="pesan" className="pt-2 scroll-mt-28 [&>div>div:first-child]:hidden [&>div>div:last-child]:hidden">
-          <OrderExperience />
-        </div>
-      </div>
-
-      {/* 2. SOP & FAQ (Panduan) */}
-      <div id="panduan">
-        <SopAndFaqSection />
-      </div>
-
-      {/* 3. Tombol Konsultasi WhatsApp */}
-      <div id="whatsapp">
-        <WhatsAppConsultationCTA />
-      </div>
-
-      {/* 4. Footer */}
-      <footer className="py-16 bg-[#faf7f2] border-t border-stone-200 text-center">
-        <div className="max-w-md mx-auto space-y-3">
-          <p className="text-xs font-serif tracking-[0.3em] text-stone-800 uppercase">Jesna Wedding Atelier</p>
-          <p className="text-[11px] text-stone-600 tracking-wider font-light">
-            Melayani wilayah Sidoarjo dan sekitarnya
-          </p>
-          <div className="w-6 h-[1px] bg-stone-300 mx-auto"></div>
-          <p className="text-[10px] text-stone-400 tracking-[0.25em] uppercase">Quiet Luxury • Est. Sidoarjo 2022</p>
-        </div>
-      </footer>
+          {/* 4. Footer */}
+          <footer className="py-16 bg-[#faf7f2] border-t border-stone-200 text-center">
+            <div className="max-w-md mx-auto space-y-3">
+              <p className="text-xs font-serif tracking-[0.3em] text-stone-800 uppercase">Jesna Wedding Atelier</p>
+              <p className="text-[11px] text-stone-600 tracking-wider font-light">
+                Melayani wilayah Sidoarjo dan sekitarnya
+              </p>
+              <div className="w-6 h-[1px] bg-stone-300 mx-auto"></div>
+              <p className="text-[10px] text-stone-400 tracking-[0.25em] uppercase">Quiet Luxury • Est. Sidoarjo 2022</p>
+            </div>
+          </footer>
+        </>
+      )}
     </main>
   )
 }
@@ -177,7 +193,7 @@ function SopAndFaqSection() {
 // KOMPONEN: WHATSAPP CTA
 // ==========================================
 function WhatsAppConsultationCTA() {
-  const phoneNumber = "6281234567890"; 
+  const phoneNumber = "6285645492105"; 
   const message = encodeURIComponent("Halo Jesna Wedding, saya dari Sidoarjo/Surabaya ingin berkonsultasi mengenai kebutuhan pernikahan saya.");
   const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
 

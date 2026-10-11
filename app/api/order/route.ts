@@ -5,8 +5,9 @@ import {
   isTierId,
   type OrderMode,
   type ProductSelections,
+  type TierId,
 } from "@/lib/catalog"
-import { releaseWeeklySlot, reserveWeeklySlot } from "@/lib/booking-store"
+import { releaseWeeklySlot, reserveWeeklySlots } from "@/lib/booking-store"
 
 type IncomingOrder = {
   client?: { fullName?: unknown; whatsapp?: unknown; weddingDate?: unknown }
@@ -62,13 +63,21 @@ export async function POST(request: Request) {
   const grandTotal = items.reduce((sum, item) => sum + item.price, 0)
   const orderId = `JWO-${Date.now().toString(36).toUpperCase()}`
 
+  const requestedTiers: TierId[] =
+    orderType === "paket_jesna" && packageTier
+      ? [packageTier]
+      : (Array.from(new Set(Object.values(products))) as TierId[])
+
   let reservedSlot = false
-  if (orderType === "paket_jesna" && packageTier) {
-    const reservation = reserveWeeklySlot({ orderId, tier: packageTier, weddingDate })
+  if (requestedTiers.length > 0) {
+    const reservation = reserveWeeklySlots({ orderId, tiers: requestedTiers, weddingDate })
     if (!reservation.ok) {
       return NextResponse.json(
         {
-          error: "Paket ini sudah penuh (Fully Booked) untuk minggu tanggal acara Anda. Silakan pilih paket atau tanggal lain.",
+          error:
+            orderType === "paket_jesna"
+              ? "Paket ini sudah penuh (Fully Booked) untuk minggu tanggal acara Anda. Silakan pilih paket atau tanggal lain."
+              : "Satu atau lebih varian tier yang Anda pilih sudah penuh (Fully Booked) untuk minggu tanggal acara Anda. Silakan ubah pilihan tier atau tanggal acara.",
           availability: reservation.availability,
         },
         { status: 409 },

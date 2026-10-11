@@ -46,7 +46,7 @@ export function OrderModeChoice({
               aria-checked={selected}
               onClick={() => onChange(option.id)}
               className={cn(
-                "group relative flex flex-col items-start gap-6 border p-8 text-left transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring md:p-10",
+                "group relative flex touch-manipulation flex-col items-start gap-6 border p-8 text-left transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring md:p-10",
                 selected
                   ? "border-primary bg-primary text-primary-foreground"
                   : "border-border bg-card hover:border-primary/60",

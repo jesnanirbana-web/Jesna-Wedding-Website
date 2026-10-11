@@ -21,7 +21,7 @@ export function SuccessScreen({ order, onReset }: { order: OrderConfirmation; on
       className="mx-auto flex min-h-svh max-w-2xl flex-col items-center justify-center px-6 py-20 text-center animate-in fade-in zoom-in-95 duration-700"
     >
       <div aria-hidden="true" className="mb-10 flex size-20 items-center justify-center rounded-full border border-primary">
-        <span className="font-serif text-3xl italic text-primary">J</span>
+        <span className="font-serif text-3xl italic text-primary">JN</span>
       </div>
       <p className="mb-4 text-[11px] uppercase tracking-[0.4em] text-primary">Pesanan Diterima</p>
       <h1 id="success-heading" className="font-serif text-5xl font-light leading-tight text-balance md:text-6xl">
@@ -60,7 +60,7 @@ export function SuccessScreen({ order, onReset }: { order: OrderConfirmation; on
       <button
         type="button"
         onClick={onReset}
-        className="mt-10 border-b border-foreground pb-1 text-xs uppercase tracking-[0.3em] transition-colors hover:border-primary hover:text-primary"
+        className="mt-10 border-b border-foreground pb-1 text-xs uppercase tracking-[0.3em] transition-colors hover:border-primary hover:text-primary cursor-pointer"
       >
         Buat Pesanan Baru
       </button>
