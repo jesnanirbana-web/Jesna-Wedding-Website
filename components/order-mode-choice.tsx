@@ -1,8 +1,16 @@
+"use client"
+
+import { useRef } from "react"
 import { cn } from "@/lib/utils"
 import type { OrderMode } from "@/lib/catalog"
 import { SectionHeading } from "./section-heading"
 
-const options: { id: OrderMode; numeral: string; title: string; description: string }[] = [
+const options: {
+  id: OrderMode
+  numeral: string
+  title: string
+  description: string
+}[] = [
   {
     id: "paket_jesna",
     numeral: "I",
@@ -14,7 +22,8 @@ const options: { id: OrderMode; numeral: string; title: string; description: str
     id: "produk_satuan",
     numeral: "II",
     title: "Produk Satuan",
-    description: "Hanya membutuhkan satu atau beberapa detail? Pilih produk yang Anda butuhkan secara terpisah",
+    description:
+      "Hanya membutuhkan satu atau beberapa detail? Pilih produk yang Anda butuhkan secara terpisah",
   },
 ]
 
@@ -31,6 +40,13 @@ export function OrderModeChoice({
   onDiagnosticPointerDown?: () => void
   onDiagnosticClick?: () => void
 }) {
+  const touchHandledRef = useRef(false)
+
+  function selectOption(mode: OrderMode) {
+    onDiagnosticClick?.()
+    onChange(mode)
+  }
+
   return (
     <section aria-labelledby="mode-heading">
       <SectionHeading
@@ -39,9 +55,15 @@ export function OrderModeChoice({
         title="Bagaimana Anda ingin mewujudkan detail pernikahan Anda"
         id="mode-heading"
       />
-      <div role="radiogroup" aria-labelledby="mode-heading" className="grid gap-4 md:grid-cols-2">
+
+      <div
+        role="radiogroup"
+        aria-labelledby="mode-heading"
+        className="grid gap-4 md:grid-cols-2"
+      >
         {options.map((option) => {
           const selected = value === option.id
+
           return (
             <button
               key={option.id}
@@ -49,9 +71,21 @@ export function OrderModeChoice({
               role="radio"
               aria-checked={selected}
               onPointerDown={onDiagnosticPointerDown}
+              onTouchStart={() => {
+                touchHandledRef.current = false
+              }}
+              onTouchEnd={(event) => {
+                event.preventDefault()
+                touchHandledRef.current = true
+                selectOption(option.id)
+              }}
               onClick={() => {
-                onDiagnosticClick?.()
-                onChange(option.id)
+                if (touchHandledRef.current) {
+                  touchHandledRef.current = false
+                  return
+                }
+
+                selectOption(option.id)
               }}
               className={cn(
                 "group relative flex touch-manipulation flex-col items-start gap-6 border p-8 text-left transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring md:p-10",
@@ -61,25 +95,43 @@ export function OrderModeChoice({
               )}
             >
               <div className="flex w-full items-center justify-between">
-                <span className={cn("font-serif text-2xl italic", selected ? "text-primary-foreground/90" : "text-primary")}>
+                <span
+                  className={cn(
+                    "font-serif text-2xl italic",
+                    selected
+                      ? "text-primary-foreground/90"
+                      : "text-primary",
+                  )}
+                >
                   {option.numeral}
                 </span>
+
                 <span
                   aria-hidden="true"
                   className={cn(
                     "flex size-5 items-center justify-center rounded-full border",
-                    selected ? "border-primary-foreground" : "border-input",
+                    selected
+                      ? "border-primary-foreground"
+                      : "border-input",
                   )}
                 >
-                  {selected ? <span className="size-2.5 rounded-full bg-primary-foreground" /> : null}
+                  {selected ? (
+                    <span className="size-2.5 rounded-full bg-primary-foreground" />
+                  ) : null}
                 </span>
               </div>
+
               <div>
-                <h3 className="font-serif text-3xl font-light md:text-4xl">{option.title}</h3>
+                <h3 className="font-serif text-3xl font-light md:text-4xl">
+                  {option.title}
+                </h3>
+
                 <p
                   className={cn(
                     "mt-3 max-w-sm leading-relaxed text-pretty",
-                    selected ? "text-primary-foreground/80" : "text-muted-foreground",
+                    selected
+                      ? "text-primary-foreground/80"
+                      : "text-muted-foreground",
                   )}
                 >
                   {option.description}
@@ -89,7 +141,10 @@ export function OrderModeChoice({
           )
         })}
       </div>
-      {error ? <p className="mt-3 text-xs text-destructive">{error}</p> : null}
+
+      {error ? (
+        <p className="mt-3 text-xs text-destructive">{error}</p>
+      ) : null}
     </section>
   )
 }
